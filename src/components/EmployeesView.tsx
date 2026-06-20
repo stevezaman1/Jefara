@@ -43,6 +43,7 @@ export default function EmployeesView({
   const [hireDate, setHireDate] = useState('2026-06-19');
   const [baseSalary, setBaseSalary] = useState('450000');
   const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'Orange Money' | 'MTN Mobile Money' | 'Banque' | 'Autre'>('Banque');
   const [formError, setFormError] = useState<string | null>(null);
 
   const departments = ['Tous', 'Technologie', 'Ressources Humaines', 'Finance', 'Ventes', 'Opérations'];
@@ -69,7 +70,12 @@ export default function EmployeesView({
     if (!position.trim()) missingFields.push("Poste occupé");
     if (!hireDate) missingFields.push("Date d'embauche");
     if (!baseSalary || Number(baseSalary) <= 0) missingFields.push("Salaire brut mensuel");
-    if (!bankAccountNumber.trim()) missingFields.push("Numéro de compte bancaire");
+    if (!bankAccountNumber.trim()) {
+      if (paymentMethod === 'Banque') missingFields.push("Numéro de compte / RIB");
+      else if (paymentMethod === 'Orange Money') missingFields.push("Numéro Orange Money");
+      else if (paymentMethod === 'MTN Mobile Money') missingFields.push("Numéro MTN Mobile Money");
+      else missingFields.push("Détails / Référence de paiement");
+    }
 
     if (missingFields.length > 0) {
       setFormError(`Veuillez renseigner correctement les champs obligatoires : ${missingFields.join(', ')}.`);
@@ -94,6 +100,7 @@ export default function EmployeesView({
       hireDate,
       baseSalary: Number(baseSalary),
       bankAccountNumber: bankAccountNumber.trim(),
+      paymentMethod,
       status: 'Actif',
     };
 
@@ -106,6 +113,7 @@ export default function EmployeesView({
     setPhone('');
     setPosition('');
     setBankAccountNumber('');
+    setPaymentMethod('Banque');
     setFormError(null);
     setIsAddModalOpen(false);
     
@@ -162,6 +170,7 @@ export default function EmployeesView({
             setHireDate('2026-06-19');
             setBaseSalary('450000');
             setBankAccountNumber('');
+            setPaymentMethod('Banque');
             setFormError(null);
             setIsAddModalOpen(true);
           }}
@@ -283,6 +292,7 @@ export default function EmployeesView({
                   setHireDate('2026-06-19');
                   setBaseSalary('450000');
                   setBankAccountNumber('');
+                  setPaymentMethod('Banque');
                   setFormError(null);
                   setIsAddModalOpen(true);
                 }}
@@ -351,12 +361,31 @@ export default function EmployeesView({
                     <span>Embauché(e) le : <strong className="text-slate-700">{selectedEmployee.hireDate}</strong></span>
                   </div>
                   <div className="flex items-start gap-2.5">
-                    <CreditCard size={14} className="text-slate-400 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-slate-400">RIB de paiement</p>
-                      <p className="font-mono text-slate-700 font-semibold leading-relaxed mt-0.5 break-all">
-                        {selectedEmployee.bankAccountNumber}
-                      </p>
+                    <CreditCard size={14} className="text-slate-400 shrink-0 mt-1" />
+                    <div className="space-y-1.5 w-full">
+                      <div>
+                        <p className="text-[10px] uppercase font-bold text-slate-400">Canal de paiement</p>
+                        <span className={`inline-flex items-center text-[10px] font-extrabold px-2 py-0.5 mt-0.5 rounded-md ${
+                          selectedEmployee.paymentMethod === 'Orange Money' ? 'bg-orange-50 text-orange-700 border border-orange-100/50' :
+                          selectedEmployee.paymentMethod === 'MTN Mobile Money' ? 'bg-amber-50 text-amber-800 border border-amber-100/50' :
+                          selectedEmployee.paymentMethod === 'Banque' ? 'bg-blue-50 text-blue-700 border border-blue-100/50' :
+                          'bg-purple-50 text-purple-700 border border-purple-100/50'
+                        }`}>
+                          {selectedEmployee.paymentMethod || 'Banque'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase font-bold text-slate-400">
+                          {selectedEmployee.paymentMethod === 'Orange Money' || selectedEmployee.paymentMethod === 'MTN Mobile Money'
+                            ? 'Numéro de Compte Mobile'
+                            : selectedEmployee.paymentMethod === 'Banque'
+                            ? 'RIB de virement'
+                            : 'Référence de paiement'}
+                        </p>
+                        <p className="font-mono text-slate-700 font-semibold leading-relaxed break-all text-[11px]">
+                          {selectedEmployee.bankAccountNumber}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -601,17 +630,72 @@ export default function EmployeesView({
                     </div>
                   </div>
 
-                  {/* Bank account routing */}
+                  {/* Moyen de paiement Choice option */}
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">Moyen de paiement *</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                      {[
+                        { id: 'Banque', label: 'Virement/Banque', desc: 'Compte bancaire', accent: 'border-blue-500 text-blue-700 bg-blue-50/20' },
+                        { id: 'Orange Money', label: 'Orange Money', desc: 'Mobile Money', accent: 'border-orange-500 text-orange-700 bg-orange-50/20' },
+                        { id: 'MTN Mobile Money', label: 'MTN Mobile Money', desc: 'Mobile Money', accent: 'border-yellow-500 text-yellow-800 bg-yellow-50/20' },
+                        { id: 'Autre', label: 'Autres', desc: 'Chèque / Autre', accent: 'border-purple-500 text-purple-700 bg-purple-50/20' }
+                      ].map((opt) => {
+                        const isSelected = paymentMethod === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => {
+                              setPaymentMethod(opt.id as any);
+                              // Provide appropriate defaults based on selected type
+                              if (opt.id === 'Orange Money' && (!bankAccountNumber || bankAccountNumber.startsWith('CMR-') || bankAccountNumber.startsWith('CIV-') || bankAccountNumber.startsWith('SEN-'))) {
+                                setBankAccountNumber('+237 690 00 00 00');
+                              } else if (opt.id === 'MTN Mobile Money' && (!bankAccountNumber || bankAccountNumber.startsWith('CMR-') || bankAccountNumber.startsWith('CIV-') || bankAccountNumber.startsWith('SEN-'))) {
+                                setBankAccountNumber('+237 670 00 00 00');
+                              } else if (opt.id === 'Banque' && (bankAccountNumber.startsWith('+') || bankAccountNumber.toLowerCase().includes('espèces') || bankAccountNumber.toLowerCase().includes('chèque'))) {
+                                setBankAccountNumber('');
+                              }
+                            }}
+                            className={`p-3 border rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                              isSelected 
+                                ? `${opt.accent} border-2 font-bold shadow-xs ring-2 ring-indigo-500/10` 
+                                : 'border-slate-200 hover:border-slate-300 bg-slate-50/50 text-slate-600'
+                            }`}
+                          >
+                            <span className="text-xs leading-none">{opt.label}</span>
+                            <span className="text-[9px] text-slate-400 mt-1 font-medium">{opt.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bank account routing / Mobile details */}
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">Numéro de compte bancaire complété (RIB international ou local)*</label>
+                    <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                      {paymentMethod === 'Banque' && "Numéro de compte / RIB de virement *"}
+                      {paymentMethod === 'Orange Money' && "Numéro de téléphone Orange Money *"}
+                      {paymentMethod === 'MTN Mobile Money' && "Numéro de téléphone MTN Mobile Money *"}
+                      {paymentMethod === 'Autre' && "Référence ou détails de paiement alternatif *"}
+                    </label>
                     <input
                       type="text"
+                      required
                       value={bankAccountNumber}
                       onChange={(e) => setBankAccountNumber(e.target.value)}
-                      placeholder="e.g. CMR-10023-00045-12345678901-45"
+                      placeholder={
+                        paymentMethod === 'Banque' ? "e.g. CMR-10023-00045-12345678901-45" :
+                        paymentMethod === 'Orange Money' ? "e.g. +237 699 99 99 99" :
+                        paymentMethod === 'MTN Mobile Money' ? "e.g. +237 677 77 77 77" :
+                        "e.g. Chèque de banque ou Paiement en espèces"
+                      }
                       className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-950 text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none font-mono"
                     />
-                    <p className="text-[10px] text-slate-400 mt-1">Nécessaire à l'édition formelle du virement et l'entête du bulletin de salaire.</p>
+                    <p className="text-[10px] text-slate-400 mt-1 font-sans">
+                      {paymentMethod === 'Banque' && "Nécessaire à l'édition formelle du virement de la banque."}
+                      {(paymentMethod === 'Orange Money' || paymentMethod === 'MTN Mobile Money') && "Nécessaire au transfert de salaire par Mobile Money."}
+                      {paymentMethod === 'Autre' && "Nécessaire à la clarification de la méthode de règlement du salaire."}
+                    </p>
                   </div>
                 </div>
 

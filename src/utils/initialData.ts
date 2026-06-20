@@ -22,6 +22,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2024-03-15',
     baseSalary: 450000,
     bankAccountNumber: 'CMR-10023-00045-12345678901-45',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -35,6 +36,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2023-01-10',
     baseSalary: 350000,
     bankAccountNumber: 'CIV-05452-12045-98765432109-12',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -48,6 +50,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2022-09-01',
     baseSalary: 850000,
     bankAccountNumber: 'SEN-09182-01124-77648392019-33',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -61,6 +64,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2025-01-05',
     baseSalary: 400000,
     bankAccountNumber: 'CMR-10023-00045-88776655443-02',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -74,6 +78,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2024-11-20',
     baseSalary: 420000,
     bankAccountNumber: 'CIV-08129-92318-19283746505-55',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -87,6 +92,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2023-06-01',
     baseSalary: 380000,
     bankAccountNumber: 'CMR-10023-00045-55667788990-21',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -100,6 +106,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2025-02-15',
     baseSalary: 300000,
     bankAccountNumber: 'SEN-09182-01124-11223344556-78',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -113,6 +120,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2024-05-10',
     baseSalary: 250000,
     bankAccountNumber: 'CMR-10023-99945-88899911122-34',
+    paymentMethod: 'Banque',
     status: 'Actif',
   },
   {
@@ -126,6 +134,7 @@ export const initialEmployees: Employee[] = [
     hireDate: '2024-08-01',
     baseSalary: 420000,
     bankAccountNumber: 'SEN-09182-01124-99887766554-11',
+    paymentMethod: 'Banque',
     status: 'Actif',
   }
 ];

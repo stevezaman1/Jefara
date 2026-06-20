@@ -9,6 +9,7 @@ export interface Employee {
   hireDate: string; // Date d'embauche
   baseSalary: number; // Salaire de base (brut)
   bankAccountNumber: string; // Numéro de compte bancaire
+  paymentMethod: 'Orange Money' | 'MTN Mobile Money' | 'Banque' | 'Autre'; // Moyen de paiement
   status: 'Actif' | 'Inactif';
 }
 
