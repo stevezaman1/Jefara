@@ -2,16 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Building2, Users, CreditCard, Calendar, Mail, Settings, LogOut, 
-  Menu, X, CheckSquare, Bell, FileText, ChevronRight, Globe, ShieldAlert 
+  Menu, X, CheckSquare, Bell, FileText, ChevronRight, Globe, ShieldAlert,
+  HandCoins, Calculator, Eye, TrendingUp, Briefcase, Clock, Bot
 } from 'lucide-react';
 
 // Models/Types
-import { Employee, PayrollRun, PayslipHistoryItem, LeaveRequest, CompanySettings, MailNotification } from './types';
+import { 
+  Employee, PayrollRun, PayslipHistoryItem, LeaveRequest, CompanySettings, 
+  MailNotification, WageAdvance, EmployeeCredit, InsuranceSubscription, ExpenseClaim, ProvisionConfig, ProfileUpdateRequest,
+  Candidate, OnboardingTask, PerformanceReview, AttendanceRecord
+} from './types';
 
 // Constants/Initial Data
 import { 
   initialCompanySettings, initialEmployees, initialLeaves, 
-  initialPayslips, initialPayrollRuns, initialNotifications 
+  initialPayslips, initialPayrollRuns, initialNotifications,
+  initialWageAdvances, initialEmployeeCredits, initialInsuranceSubscriptions,
+  initialExpenseClaims, initialProvisions, initialProfileUpdateRequests,
+  initialCandidates, initialOnboardingTasks, initialPerformanceReviews, initialAttendanceRecords
 } from './utils/initialData';
 
 // Custom core views
@@ -22,6 +30,13 @@ import PayrollProcessView from './components/PayrollProcessView';
 import LeavesView from './components/LeavesView';
 import SettingsView from './components/SettingsView';
 import NotificationsView from './components/NotificationsView';
+import FinancialServicesView from './components/FinancialServicesView';
+import AccountingView from './components/AccountingView';
+import EmployeePortalView from './components/EmployeePortalView';
+import AnalyticsView from './components/AnalyticsView';
+import TalentView from './components/TalentView';
+import AttendanceView from './components/AttendanceView';
+import AIAssistant from './components/AIAssistant';
 
 // Calculator formatters
 import { formatCurrency } from './utils/calculator';
@@ -64,6 +79,66 @@ export default function App() {
     return saved ? JSON.parse(saved) : initialNotifications;
   });
 
+  const [wageAdvances, setWageAdvances] = useState<WageAdvance[]>(() => {
+    const saved = localStorage.getItem('jefara_wage_advances');
+    return saved ? JSON.parse(saved) : initialWageAdvances;
+  });
+
+  const [employeeCredits, setEmployeeCredits] = useState<EmployeeCredit[]>(() => {
+    const saved = localStorage.getItem('jefara_employee_credits');
+    return saved ? JSON.parse(saved) : initialEmployeeCredits;
+  });
+
+  const [insuranceSubscriptions, setInsuranceSubscriptions] = useState<InsuranceSubscription[]>(() => {
+    const saved = localStorage.getItem('jefara_insurance_subscriptions');
+    return saved ? JSON.parse(saved) : initialInsuranceSubscriptions;
+  });
+
+  const [expenseClaims, setExpenseClaims] = useState<ExpenseClaim[]>(() => {
+    const saved = localStorage.getItem('jefara_expense_claims');
+    return saved ? JSON.parse(saved) : initialExpenseClaims;
+  });
+
+  const [provisions, setProvisions] = useState<ProvisionConfig[]>(() => {
+    const saved = localStorage.getItem('jefara_provisions');
+    return saved ? JSON.parse(saved) : initialProvisions;
+  });
+
+  const [profileUpdateRequests, setProfileUpdateRequests] = useState<ProfileUpdateRequest[]>(() => {
+    const saved = localStorage.getItem('jefara_profile_update_requests');
+    return saved ? JSON.parse(saved) : initialProfileUpdateRequests;
+  });
+
+  const [candidates, setCandidates] = useState<Candidate[]>(() => {
+    const saved = localStorage.getItem('jefara_candidates');
+    return saved ? JSON.parse(saved) : initialCandidates;
+  });
+
+  const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>(() => {
+    const saved = localStorage.getItem('jefara_onboarding_tasks');
+    return saved ? JSON.parse(saved) : initialOnboardingTasks;
+  });
+
+  const [performanceReviews, setPerformanceReviews] = useState<PerformanceReview[]>(() => {
+    const saved = localStorage.getItem('jefara_performance_reviews');
+    return saved ? JSON.parse(saved) : initialPerformanceReviews;
+  });
+
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => {
+    const saved = localStorage.getItem('jefara_attendance_records');
+    return saved ? JSON.parse(saved) : initialAttendanceRecords;
+  });
+
+  const [activePortal, setActivePortal] = useState<'employer' | 'employee'>(() => {
+    return (localStorage.getItem('jefara_active_portal') as 'employer' | 'employee') || 'employer';
+  });
+
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>(() => {
+    return localStorage.getItem('jefara_selected_employee_id') || 'emp-01';
+  });
+
   // Sidebar metric tracker states
   const [pendingPayrollCount, setPendingPayrollCount] = useState<number>(() => {
     const saved = localStorage.getItem('jefara_pending_payroll_count');
@@ -100,19 +175,82 @@ export default function App() {
   }, [notifications]);
 
   useEffect(() => {
+    localStorage.setItem('jefara_wage_advances', JSON.stringify(wageAdvances));
+  }, [wageAdvances]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_employee_credits', JSON.stringify(employeeCredits));
+  }, [employeeCredits]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_insurance_subscriptions', JSON.stringify(insuranceSubscriptions));
+  }, [insuranceSubscriptions]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_candidates', JSON.stringify(candidates));
+  }, [candidates]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_onboarding_tasks', JSON.stringify(onboardingTasks));
+  }, [onboardingTasks]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_performance_reviews', JSON.stringify(performanceReviews));
+  }, [performanceReviews]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_attendance_records', JSON.stringify(attendanceRecords));
+  }, [attendanceRecords]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_expense_claims', JSON.stringify(expenseClaims));
+  }, [expenseClaims]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_provisions', JSON.stringify(provisions));
+  }, [provisions]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_profile_update_requests', JSON.stringify(profileUpdateRequests));
+  }, [profileUpdateRequests]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_active_portal', activePortal);
+  }, [activePortal]);
+
+  useEffect(() => {
+    localStorage.setItem('jefara_selected_employee_id', selectedEmployeeId);
+  }, [selectedEmployeeId]);
+
+  useEffect(() => {
     localStorage.setItem('jefara_pending_payroll_count', String(pendingPayrollCount));
   }, [pendingPayrollCount]);
 
   // Handle successful login
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (email?: string) => {
     setIsLoggedIn(true);
     localStorage.setItem('jefara_logged_in', 'true');
-    pushNotification(
-      'Connexion réussie',
-      'Le responsable RH s\'est connecté avec succès au tableau de bord Jefara.',
-      'admin@jefara.com',
-      'employee'
-    );
+    
+    // Check if email corresponds to a real employee in initialData
+    const matchedEmployee = employees.find(e => e.email.toLowerCase() === email?.toLowerCase());
+    if (matchedEmployee) {
+      setActivePortal('employee');
+      setSelectedEmployeeId(matchedEmployee.id);
+      pushNotification(
+        'Connexion Portail Collaborateur',
+        `L'employeur ${matchedEmployee.firstName} ${matchedEmployee.lastName} s'est connecté à son espace personnel Jefara.`,
+        matchedEmployee.email,
+        'employee'
+      );
+    } else {
+      setActivePortal('employer');
+      pushNotification(
+        'Connexion réussie',
+        'Le responsable RH s\'est connecté avec succès au tableau de bord Jefara.',
+        'admin@jefara.com',
+        'employee'
+      );
+    }
   };
 
   // Handle logout
@@ -157,13 +295,48 @@ export default function App() {
     setPayslips(prev => [...newPayslips, ...prev]);
     setPendingPayrollCount(0); // clear count of draft runs
 
+    const processedEmployeeIds = newPayslips.map(s => s.employeeId);
+
+    // Update affected wage advances to 'Payé' status
+    setWageAdvances(prev => prev.map(advance => {
+      if (processedEmployeeIds.includes(advance.employeeId) && advance.status === 'Approuvé') {
+        return { ...advance, status: 'Payé' };
+      }
+      return advance;
+    }));
+
+    // Update active credits: increment paid installment count, close if finished
+    setEmployeeCredits(prev => prev.map(credit => {
+      if (processedEmployeeIds.includes(credit.employeeId) && credit.status === 'Actif') {
+        const nextPaid = credit.monthsPaidCount + 1;
+        const fullyReimbursed = nextPaid >= credit.monthsDuration;
+        return {
+          ...credit,
+          monthsPaidCount: nextPaid,
+          status: fullyReimbursed ? 'Remboursé' : 'Actif'
+        };
+      }
+      return credit;
+    }));
+
     // Emit completed emails to all payees
     newPayslips.forEach(slip => {
       const emp = employees.find(e => e.id === slip.employeeId);
       if (emp) {
+        let extMessage = '';
+        if (slip.wageAdvanceDeduction && slip.wageAdvanceDeduction > 0) {
+          extMessage += `\n- Retenue acompte EWA : -${formatCurrency(slip.wageAdvanceDeduction, companySettings.currency)}`;
+        }
+        if (slip.creditDeduction && slip.creditDeduction > 0) {
+          extMessage += `\n- Mensualité crédit micro-prêt : -${formatCurrency(slip.creditDeduction, companySettings.currency)}`;
+        }
+        if (slip.insuranceDeduction && slip.insuranceDeduction > 0) {
+          extMessage += `\n- Versement mutuelle santé/assurance : -${formatCurrency(slip.insuranceDeduction, companySettings.currency)}`;
+        }
+
         pushNotification(
           'Payslip generated',
-          `Bonjour ${emp.firstName},\n\nVotre bulletin de salaire pour le mois de ${slip.month} a été généré.\n\nSalaire brut de base : ${formatCurrency(slip.baseSalary, companySettings.currency)}\nSalaire net versé : ${formatCurrency(slip.netSalary, companySettings.currency)}\n\nLe virement a été ordonné sur votre compte : ${slip.bankAccount}. Vous pouvez télécharger votre bulletin de salaire PDF complet depuis votre portail.`,
+          `Bonjour ${emp.firstName},\n\nVotre bulletin de salaire pour le mois de ${slip.month} a été généré.\n\nSalaire brut de base : ${formatCurrency(slip.baseSalary, companySettings.currency)}\nSalaire net versé : ${formatCurrency(slip.netSalary, companySettings.currency)}${extMessage ? `\n\nDétail des services financiers intégrés prélevés :${extMessage}` : ''}\n\nLe virement a été ordonné sur votre compte : ${slip.bankAccount}. Vous pouvez télécharger votre bulletin de salaire PDF complet depuis votre portail.`,
           emp.email,
           'payroll'
         );
@@ -173,7 +346,7 @@ export default function App() {
     // General HR digest notification
     pushNotification(
       'Payroll completed',
-      `FÉLICITATIONS ! L'exécution de la paie pour ${newRun.month} a été traitée avec succès pour ${newRun.employeeCount} employés.\n\nMasse salariale totale brute décaissée : ${formatCurrency(newRun.totalGross, companySettings.currency)}\nTotal net versé : ${formatCurrency(newRun.totalNet, companySettings.currency)}\nTaxes et cotisations reversées à l'administration locale : ${formatCurrency(newRun.totalDeductions, companySettings.currency)}`,
+      `FÉLICITATIONS ! L'exécution de la paie pour ${newRun.month} a été traitée avec succès pour ${newRun.employeeCount} employés.\n\nMasse salariale totale brute décaissée : ${formatCurrency(newRun.totalGross, companySettings.currency)}\nTotal net versé : ${formatCurrency(newRun.totalNet, companySettings.currency)}\nTaxes, cotisations et prélèvements de services financiers reversés : ${formatCurrency(newRun.totalDeductions, companySettings.currency)}`,
       'zamannando14@gmail.com',// Admin email from metadata/auth context
       'payroll'
     );
@@ -222,6 +395,72 @@ export default function App() {
     }
   };
 
+  const handleAddProfileUpdateRequest = (req: ProfileUpdateRequest) => {
+    setProfileUpdateRequests(prev => [req, ...prev]);
+
+    // Notification of draft profile update submitted
+    pushNotification(
+      'Demande de mise à jour de profil',
+      `L'employé(e) ${req.employeeName} a soumis une demande autonome de mise à jour de ses informations de profil (coordonnées, adresse, contacts d'urgence ou RIB bancaire). Veuillez l'examiner pour validation.`,
+      'zamannando14@gmail.com',
+      'employee'
+    );
+  };
+
+  const handleApproveProfileUpdate = (id: string) => {
+    const req = profileUpdateRequests.find(r => r.id === id);
+    if (!req) return;
+
+    // Update state of profile update requests
+    setProfileUpdateRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Approuvé' } : r));
+
+    // Update corresponding employee
+    setEmployees(prev => prev.map(emp => {
+      if (emp.id === req.employeeId) {
+        return {
+          ...emp,
+          phone: req.phone,
+          email: req.email,
+          address: req.address,
+          city: req.city,
+          nationality: req.nationality,
+          emergencyContactName: req.emergencyContactName,
+          emergencyContactPhone: req.emergencyContactPhone,
+          emergencyContactRelation: req.emergencyContactRelation,
+          bankName: req.bankName,
+          bankAccountNumber: req.bankAccountNumber,
+          bankAccountName: req.bankAccountName,
+          paymentMethod: req.paymentMethod,
+        };
+      }
+      return emp;
+    }));
+
+    // Notification of approval
+    pushNotification(
+      'Mise à jour du profil approuvée',
+      `Bonjour ${req.employeeName},\n\nVotre demande de modification de profil a été APPROUVÉE par l'équipe RH. Vos informations personnelles et bancaires ont été appliquées avec succès dans le système Jefara.`,
+      req.email,
+      'employee'
+    );
+  };
+
+  const handleRejectProfileUpdate = (id: string, reason: string) => {
+    const req = profileUpdateRequests.find(r => r.id === id);
+    if (!req) return;
+
+    // Update state of profile update requests
+    setProfileUpdateRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Refusé', rejectionReason: reason } : r));
+
+    // Notification of rejection
+    pushNotification(
+      'Mise à jour du profil refusée',
+      `Bonjour ${req.employeeName},\n\nNous vous informons de la non-conformité constatée par l'administration RH :\n\nVotre demande de mise à jour de profil a été REFUSÉE pour le motif suivant : "${reason || 'Non spécifié'}".\n\nVeuillez soumettre à nouveau vos informations corrigées s'il vous plaît.`,
+      req.email,
+      'employee'
+    );
+  };
+
   const handleSaveSettings = (newSettings: CompanySettings) => {
     setCompanySettings(newSettings);
     alert('Les paramètres de conformité et l\'entête de l\'entreprise ont été sauvegardés avec succès.');
@@ -247,6 +486,36 @@ export default function App() {
   // If session is closed, lock screen
   if (!isLoggedIn) {
     return <LoginView onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  const activeEmployee = employees.find(e => e.id === selectedEmployeeId) || employees[0];
+
+  if (activePortal === 'employee') {
+    return (
+      <EmployeePortalView
+        currentUser={activeEmployee}
+        companySettings={companySettings}
+        payslips={payslips}
+        leaves={leaves}
+        onAddLeaveRequest={handleAddLeaveRequest}
+        wageAdvances={wageAdvances}
+        setWageAdvances={setWageAdvances}
+        employeeCredits={employeeCredits}
+        setEmployeeCredits={setEmployeeCredits}
+        insuranceSubscriptions={insuranceSubscriptions}
+        setInsuranceSubscriptions={setInsuranceSubscriptions}
+        expenseClaims={expenseClaims}
+        setExpenseClaims={setExpenseClaims}
+        pushNotification={pushNotification}
+        profileUpdateRequests={profileUpdateRequests}
+        onAddProfileUpdateRequest={handleAddProfileUpdateRequest}
+        onLogout={() => {
+          setActivePortal('employer');
+          handleLogout();
+        }}
+        onSwitchPortal={() => setActivePortal('employer')}
+      />
+    );
   }
 
   return (
@@ -330,10 +599,37 @@ export default function App() {
                 <Users size={18} />
                 <span>Employés</span>
               </div>
-              <span className={`text-xs px-2.5 py-0.5 rounded-md font-bold ${
-                currentTab === 'employees' ? 'bg-indigo-550/20 text-indigo-300' : 'bg-slate-800 text-slate-400'
-              }`}>
-                {activeStaffCount}
+              {profileUpdateRequests.filter(r => r.status === 'En attente').length > 0 ? (
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="text-[10px] bg-slate-800 text-slate-400 py-0.5 px-1.5 rounded-md font-bold">
+                    {activeStaffCount}
+                  </span>
+                  <span className="text-[10px] bg-amber-500 text-slate-950 font-black py-0.5 px-1.5 rounded-md animate-pulse">
+                    {profileUpdateRequests.filter(r => r.status === 'En attente').length} modif
+                  </span>
+                </div>
+              ) : (
+                <span className={`text-xs px-2.5 py-0.5 rounded-md font-bold ${
+                  currentTab === 'employees' ? 'bg-indigo-555/20 text-indigo-300' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {activeStaffCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              id="tab_talents"
+              onClick={() => { setCurrentTab('talents'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                currentTab === 'talents' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Briefcase size={18} />
+                <span>Recrutement & Talents</span>
+              </div>
+              <span className="text-[10px] bg-indigo-500 text-white font-bold py-0.5 px-2 rounded-full font-sans">
+                {candidates.filter(c => c.status !== 'Onboarding').length}
               </span>
             </button>
 
@@ -351,6 +647,80 @@ export default function App() {
               {pendingPayrollCount > 0 && (
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse border border-slate-900" />
               )}
+            </button>
+
+            <button
+              id="tab_fintech"
+              onClick={() => { setCurrentTab('fintech'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                currentTab === 'fintech' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <HandCoins size={18} />
+                <span>Finances Intégrées</span>
+              </div>
+              {wageAdvances.filter(w => w.status === 'En attente').length > 0 && (
+                <span className="text-[10px] bg-indigo-500 text-white font-bold py-0.5 px-2 rounded-full">
+                  {wageAdvances.filter(w => w.status === 'En attente').length}
+                </span>
+              )}
+            </button>
+
+            <button
+              id="tab_attendance"
+              onClick={() => { setCurrentTab('attendance'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                currentTab === 'attendance' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Clock size={18} />
+                <span>Présences & Temps</span>
+              </div>
+              <ChevronRight size={14} className={currentTab === 'attendance' ? 'text-indigo-450' : 'opacity-0'} />
+            </button>
+
+            <button
+              id="tab_accounting"
+              onClick={() => { setCurrentTab('accounting'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                currentTab === 'accounting' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Calculator size={18} />
+                <span>Comptabilité (SYSCOHADA)</span>
+              </div>
+              <ChevronRight size={14} className={currentTab === 'accounting' ? 'text-indigo-450' : 'opacity-0'} />
+            </button>
+
+            <button
+              id="tab_analytics"
+              onClick={() => { setCurrentTab('analytics'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                currentTab === 'analytics' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <TrendingUp size={18} />
+                <span>Analyses Avancées</span>
+              </div>
+              <ChevronRight size={14} className={currentTab === 'analytics' ? 'text-indigo-455' : 'opacity-0'} />
+            </button>
+
+            <button
+              id="tab_ai"
+              onClick={() => { setCurrentTab('ai'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                currentTab === 'ai' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45/80 text-teal-400 font-bold hover:text-white border border-teal-500/10'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Bot size={18} className="text-indigo-400 animate-pulse" />
+                <span className="text-slate-200">Assistant IA Jefara</span>
+              </div>
+              <span className="bg-indigo-500 text-white text-[8px] font-black py-0.5 px-1.5 rounded-sm">INTELLIGENT</span>
             </button>
 
             <button
@@ -453,6 +823,32 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Simulation double-interface quick switch */}
+            <div className="hidden lg:flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl p-1.5 px-3">
+              <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">Simuler :</span>
+              <select
+                id="select_simulated_employee"
+                value={selectedEmployeeId}
+                onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                className="text-xs border border-slate-150 bg-white hover:bg-slate-50 rounded-lg px-2 py-1 font-bold text-slate-700 focus:outline-none cursor-pointer"
+              >
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.firstName} {emp.lastName} ({emp.position})
+                  </option>
+                ))}
+              </select>
+              
+              <button
+                id="btn_launch_employee_portal"
+                onClick={() => setActivePortal('employee')}
+                className="inline-flex items-center gap-1 text-[10px] font-extrabold text-white bg-purple-600 hover:bg-purple-750 font-sans tracking-wide px-2.5 py-1.5 rounded-lg shadow-xs cursor-pointer transition uppercase"
+              >
+                <Eye size={12} />
+                <span>Portail Personnel</span>
+              </button>
+            </div>
+
             {/* Notifications quick counter */}
             <button 
               onClick={() => setCurrentTab('notifications')}
@@ -502,6 +898,9 @@ export default function App() {
                   companySettings={companySettings}
                   onAddEmployee={handleAddEmployee}
                   onDeleteEmployee={handleDeleteEmployee}
+                  profileUpdateRequests={profileUpdateRequests}
+                  onApproveProfileUpdate={handleApproveProfileUpdate}
+                  onRejectProfileUpdate={handleRejectProfileUpdate}
                 />
               )}
 
@@ -511,6 +910,84 @@ export default function App() {
                   companySettings={companySettings}
                   activePayrollHistory={payslips}
                   onPayrollCompleted={handlePayrollCompleted}
+                  wageAdvances={wageAdvances}
+                  employeeCredits={employeeCredits}
+                  insuranceSubscriptions={insuranceSubscriptions}
+                />
+              )}
+
+              {currentTab === 'fintech' && (
+                <FinancialServicesView
+                  employees={employees}
+                  companySettings={companySettings}
+                  wageAdvances={wageAdvances}
+                  employeeCredits={employeeCredits}
+                  insuranceSubscriptions={insuranceSubscriptions}
+                  setWageAdvances={setWageAdvances}
+                  setEmployeeCredits={setEmployeeCredits}
+                  setInsuranceSubscriptions={setInsuranceSubscriptions}
+                  pushNotification={pushNotification}
+                />
+              )}
+
+              {currentTab === 'accounting' && (
+                <AccountingView
+                  employees={employees}
+                  companySettings={companySettings}
+                  payrollRuns={payrollRuns}
+                  payslips={payslips}
+                  expenseClaims={expenseClaims}
+                  setExpenseClaims={setExpenseClaims}
+                  provisions={provisions}
+                  setProvisions={setProvisions}
+                  wageAdvances={wageAdvances}
+                  employeeCredits={employeeCredits}
+                />
+              )}
+
+              {currentTab === 'analytics' && (
+                <AnalyticsView
+                  employees={employees}
+                  companySettings={companySettings}
+                  payrollRuns={payrollRuns}
+                  payslips={payslips}
+                  expenseClaims={expenseClaims}
+                  provisions={provisions}
+                  wageAdvances={wageAdvances}
+                  employeeCredits={employeeCredits}
+                />
+              )}
+
+              {currentTab === 'talents' && (
+                <TalentView
+                  employees={employees}
+                  companySettings={companySettings}
+                  onAddEmployee={handleAddEmployee}
+                  initialCandidatesList={candidates}
+                  initialOnboardingTaskList={onboardingTasks}
+                  initialPerformanceReviewList={performanceReviews}
+                />
+              )}
+
+              {currentTab === 'attendance' && (
+                <AttendanceView
+                  employees={employees}
+                  companySettings={companySettings}
+                  initialAttendanceList={attendanceRecords}
+                />
+              )}
+
+              {currentTab === 'ai' && (
+                <AIAssistant
+                  companySettings={companySettings}
+                  employees={employees}
+                  payrollRuns={payrollRuns}
+                  payslips={payslips}
+                  leaves={leaves}
+                  expenseClaims={expenseClaims}
+                  attendanceRecords={attendanceRecords}
+                  candidates={candidates}
+                  isFloating={false}
                 />
               )}
 
@@ -543,13 +1020,47 @@ export default function App() {
 
         {/* Global layout footer details */}
         <footer className="bg-white border-t border-slate-100 p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center text-xs text-slate-400">
-          <p>© 2026 Jefara Inc. L'infrastructure de la paie en Afrique francophone.</p>
+          <p>© 2026 Jefara Inc. L'infrastructure de la paie en Afrique.</p>
           <div className="flex gap-4">
             <span className="hover:underline cursor-pointer">Conditions Générales</span>
             <span className="hover:underline cursor-pointer">Sécurité & Conformité CEMAC/UEMOA</span>
           </div>
         </footer>
       </main>
+
+      {/* Floating AI Chat Bubble Trigger */}
+      {currentTab !== 'ai' && (
+        <div className="fixed bottom-5 right-5 z-40 select-none">
+          {isChatOpen ? (
+            <AIAssistant
+              companySettings={companySettings}
+              employees={employees}
+              payrollRuns={payrollRuns}
+              payslips={payslips}
+              leaves={leaves}
+              expenseClaims={expenseClaims}
+              attendanceRecords={attendanceRecords}
+              candidates={candidates}
+              isFloating={true}
+              onClose={() => setIsChatOpen(false)}
+            />
+          ) : (
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="w-12 h-12 bg-indigo-650 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:scale-105 transition-all group relative hover:rotate-6"
+              style={{ transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
+              title="Discuter avec l'assistant Jefara AI"
+              id="btn_floating_ai_assistant"
+            >
+              <Bot size={22} className="group-hover:animate-pulse" />
+              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-550 border border-white" />
+              </span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -4,9 +4,10 @@ import {
   Search, Plus, UserPlus, Phone, Mail, Calendar, Banknote, CreditCard, 
   ChevronRight, X, Shield, FileText, CheckCircle2, AlertCircle, Trash2, Edit 
 } from 'lucide-react';
-import { Employee, LeaveRequest, PayslipHistoryItem, CompanySettings } from '../types';
+import { Employee, LeaveRequest, PayslipHistoryItem, CompanySettings, ProfileUpdateRequest } from '../types';
 import { formatCurrency, calculatePayroll } from '../utils/calculator';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
+import { Check, CheckSquare, Edit3, ShieldCheck, UserCheck } from 'lucide-react';
 
 interface EmployeesViewProps {
   employees: Employee[];
@@ -15,6 +16,31 @@ interface EmployeesViewProps {
   companySettings: CompanySettings;
   onAddEmployee: (employee: Employee) => void;
   onDeleteEmployee: (id: string) => void;
+  profileUpdateRequests?: ProfileUpdateRequest[];
+  onApproveProfileUpdate?: (id: string) => void;
+  onRejectProfileUpdate?: (id: string, reason: string) => void;
+}
+
+interface CompareRowProps {
+  label: string;
+  oldValue?: string;
+  newValue?: string;
+}
+
+function CompareRow({ label, oldValue, newValue }: CompareRowProps) {
+  const isChanged = (oldValue || '').trim() !== (newValue || '').trim();
+  if (!isChanged) return null;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-2 border-b border-slate-100 last:border-0 text-xs items-center">
+      <span className="font-bold text-slate-500">{label}</span>
+      <span className="text-rose-700 bg-rose-50 border border-rose-100/50 rounded-lg px-2.5 py-1 line-through font-mono truncate select-none">
+        {oldValue || '(Vide)'}
+      </span>
+      <span className="text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-1 font-bold font-mono truncate">
+        {newValue || '(Vide/Supprimé)'}
+      </span>
+    </div>
+  );
 }
 
 export default function EmployeesView({
@@ -24,7 +50,15 @@ export default function EmployeesView({
   companySettings,
   onAddEmployee,
   onDeleteEmployee,
+  profileUpdateRequests = [],
+  onApproveProfileUpdate,
+  onRejectProfileUpdate,
 }: EmployeesViewProps) {
+  // Sub-tabs state
+  const [activeSubTab, setActiveSubTab] = useState<'roster' | 'requests'>('roster');
+  const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
+  const [activeRejectionInputId, setActiveRejectionInputId] = useState<string | null>(null);
+
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDept, setSelectedDept] = useState('Tous');
@@ -127,7 +161,38 @@ export default function EmployeesView({
 
   return (
     <div id="employees_view_wrapper" className="space-y-6">
-      {/* Search and Action Bar */}
+      {/* Sub tabs selection */}
+      <div className="flex gap-6 border-b border-slate-200/65 pb-px">
+        <button
+          onClick={() => setActiveSubTab('roster')}
+          className={`pb-3 text-sm font-extrabold border-b-2 transition-all cursor-pointer ${
+            activeSubTab === 'roster'
+              ? 'border-indigo-600 text-indigo-600 font-black'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          Annuaire du Personnel ({employees.length})
+        </button>
+        <button
+          onClick={() => setActiveSubTab('requests')}
+          className={`pb-3 text-sm font-extrabold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+            activeSubTab === 'requests'
+              ? 'border-indigo-600 text-indigo-600 font-black'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <span>Demandes de Modification</span>
+          {profileUpdateRequests.filter(r => r.status === 'En attente').length > 0 && (
+            <span className="bg-amber-500 text-slate-950 text-[10px] font-black py-0.5 px-2 rounded-full animate-pulse">
+              {profileUpdateRequests.filter(r => r.status === 'En attente').length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activeSubTab === 'roster' ? (
+        <>
+          {/* Search and Action Bar */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
         <div className="flex-1 flex flex-wrap gap-3 items-center">
           <div className="relative flex-1 min-w-[200px]">
@@ -723,6 +788,166 @@ export default function EmployeesView({
           </div>
         )}
       </AnimatePresence>
+      </>
+      ) : (
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <h3 className="text-base font-extrabold text-slate-800 tracking-tight font-display mb-1">
+              Historique et Validation des Modifications de Profil
+            </h3>
+            <p className="text-xs text-slate-500">
+              Les employés soumettent de manière autonome leurs coordonnées, informations bancaires et d'urgence. Validez-les ci-dessous après vérification de conformité.
+            </p>
+          </div>
+
+          {profileUpdateRequests.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-slate-100 p-12 text-center text-slate-400 text-sm shadow-sm flex flex-col items-center justify-center">
+              <ShieldCheck className="text-indigo-650 mb-3" size={32} />
+              <p className="font-bold text-slate-700">Aucune demande de modification enregistrée</p>
+              <p className="text-xs text-slate-400 mt-1">Toutes les informations du personnel sont conformes et validées.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {profileUpdateRequests.map((req) => {
+                const emp = employees.find(e => e.id === req.employeeId);
+                const isPending = req.status === 'En attente';
+                
+                return (
+                  <div key={req.id} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    {/* Header bar */}
+                    <div className="p-5 border-b border-slate-100 flex flex-wrap gap-3 justify-between items-center bg-slate-50/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-indigo-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
+                          {req.employeeName[0]}
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-slate-800 text-sm">{req.employeeName}</h4>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Demande émise le {req.requestDate}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full ${
+                          req.status === 'Approuvé' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
+                          req.status === 'Refusé' ? 'bg-rose-50 text-rose-700 border border-rose-100' :
+                          'bg-amber-50 text-amber-850 border border-amber-100 animate-pulse'
+                        }`}>
+                          {req.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Comparison block details */}
+                    <div className="p-6 space-y-4">
+                      {req.additionalNotes && (
+                        <div className="p-3 bg-indigo-50/40 rounded-2xl border border-indigo-100/50 text-[11px] text-indigo-950">
+                          <strong className="block mb-1 text-xs text-indigo-900 font-bold">Message du collaborateur :</strong>
+                          <p className="italic leading-normal font-medium">"{req.additionalNotes}"</p>
+                        </div>
+                      )}
+
+                      {req.status === 'Refusé' && req.rejectionReason && (
+                        <div className="p-3 bg-rose-50 rounded-2xl border border-rose-100/50 text-[11px] text-rose-950">
+                          <strong className="block mb-1 text-xs text-rose-900 font-bold">Motif du rejet :</strong>
+                          <p className="italic leading-normal font-medium">"{req.rejectionReason}"</p>
+                        </div>
+                      )}
+
+                      <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 space-y-2">
+                        <h5 className="text-[11px] font-bold uppercase text-slate-400 mb-3 tracking-widest leading-none">Changements Demandés</h5>
+                        
+                        <div className="divide-y divide-slate-100">
+                          <CompareRow label="Numéro de téléphone" oldValue={emp?.phone} newValue={req.phone} />
+                          <CompareRow label="Information E-mail" oldValue={emp?.email} newValue={req.email} />
+                          <CompareRow label="Adresse postale" oldValue={emp?.address} newValue={req.address} />
+                          <CompareRow label="Ville de résidence" oldValue={emp?.city} newValue={req.city} />
+                          <CompareRow label="Nationalité" oldValue={emp?.nationality} newValue={req.nationality} />
+                          
+                          <CompareRow label="Contact d'Urgence : Nom" oldValue={emp?.emergencyContactName} newValue={req.emergencyContactName} />
+                          <CompareRow label="Contact d'Urgence : Téléphone" oldValue={emp?.emergencyContactPhone} newValue={req.emergencyContactPhone} />
+                          <CompareRow label="Contact d'Urgence : Lien" oldValue={emp?.emergencyContactRelation} newValue={req.emergencyContactRelation} />
+                          
+                          <CompareRow label="Moyen de versement" oldValue={emp?.paymentMethod} newValue={req.paymentMethod} />
+                          <CompareRow label="Nom de la Banque" oldValue={emp?.bankName} newValue={req.bankName} />
+                          <CompareRow label="RIB / Numéro de Compte" oldValue={emp?.bankAccountNumber} newValue={req.bankAccountNumber} />
+                          <CompareRow label="Titulaire du Compte" oldValue={emp?.bankAccountName} newValue={req.bankAccountName} />
+                        </div>
+                      </div>
+
+                      {/* Pending actions tool list */}
+                      {isPending && (
+                        <div className="pt-4 border-t border-slate-100 space-y-4">
+                          {activeRejectionInputId === req.id ? (
+                            <div className="space-y-3">
+                              <label className="block text-[10px] font-black uppercase text-slate-500">Préciser le motif de rejet (obligatoire) *</label>
+                              <div className="flex gap-2">
+                                <input
+                                  type="text"
+                                  placeholder="Ex : RIB bancaire erroné, adresse incomplète, etc."
+                                  value={rejectionReasons[req.id] || ''}
+                                  onChange={(e) => setRejectionReasons(prev => ({ ...prev, [req.id]: e.target.value }))}
+                                  className="flex-1 p-2.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const reason = rejectionReasons[req.id];
+                                    if (!reason || !reason.trim()) {
+                                      alert("Veuillez mentionner la raison du rejet pour guider l'employé.");
+                                      return;
+                                    }
+                                    if (onRejectProfileUpdate) {
+                                      onRejectProfileUpdate(req.id, reason.trim());
+                                    }
+                                    setActiveRejectionInputId(null);
+                                  }}
+                                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer font-display"
+                                >
+                                  Confirmer le Refus
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveRejectionInputId(null)}
+                                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold text-xs rounded-xl cursor-pointer"
+                                >
+                                  Annuler
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex gap-3 justify-end items-center">
+                              <button
+                                type="button"
+                                onClick={() => setActiveRejectionInputId(req.id)}
+                                className="px-4 py-2 bg-slate-50 hover:bg-rose-50 text-rose-600 font-bold text-xs rounded-xl hover:text-rose-700 transition cursor-pointer border border-slate-200/50 hover:border-rose-100/50"
+                              >
+                                Rejeter la demande
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const confirmApprove = window.confirm(`Voulez-vous approuver les modifications de profil de ${req.employeeName} ?`);
+                                  if (confirmApprove && onApproveProfileUpdate) {
+                                    onApproveProfileUpdate(req.id);
+                                  }
+                                }}
+                                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-emerald-100 flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
+                              >
+                                <Check size={14} />
+                                <span>Approuver & Appliquer</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,41 @@ export interface Employee {
   bankAccountNumber: string; // Numéro de compte bancaire
   paymentMethod: 'Orange Money' | 'MTN Mobile Money' | 'Banque' | 'Autre'; // Moyen de paiement
   status: 'Actif' | 'Inactif';
+  // Additional self-update fields
+  address?: string;
+  city?: string;
+  nationality?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  emergencyContactRelation?: string;
+  bankName?: string;
+  bankAccountName?: string;
+}
+
+export interface ProfileUpdateRequest {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  requestDate: string;
+  status: 'En attente' | 'Approuvé' | 'Refusé';
+  // Personal & Contact details
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  nationality: string;
+  // Emergency Contact details
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  emergencyContactRelation: string;
+  // Bank details
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountName: string;
+  paymentMethod: 'Orange Money' | 'MTN Mobile Money' | 'Banque' | 'Autre';
+  // Additional Comments
+  additionalNotes?: string;
+  rejectionReason?: string;
 }
 
 export type CountryType = 'Cameroun' | "Côte d'Ivoire" | 'Sénégal' | 'Autre (Afrique Francophone)';
@@ -61,6 +96,10 @@ export interface PayslipHistoryItem {
   slipDetail: PayslipDetail;
   paymentDate: string;
   bankAccount: string;
+  paymentMethod?: string;
+  wageAdvanceDeduction?: number;
+  creditDeduction?: number;
+  insuranceDeduction?: number;
 }
 
 export interface PayrollRun {
@@ -82,3 +121,158 @@ export interface MailNotification {
   timestamp: string;
   type: 'payroll' | 'employee' | 'leave';
 }
+
+export interface WageAdvance {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  amount: number;
+  requestDate: string;
+  status: 'En attente' | 'Approuvé' | 'Refusé' | 'Payé';
+  month: string; // The payroll month this is designated for or was paid in, e.g. "Mai 2026"
+}
+
+export interface EmployeeCredit {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  totalAmount: number;
+  monthlyInstallment: number;
+  monthsDuration: number;
+  monthsPaidCount: number;
+  interestRate: number;
+  status: 'En attente' | 'Approuvé' | 'Refusé' | 'Actif' | 'Remboursé';
+  requestDate: string;
+  purpose: string;
+}
+
+export interface InsuranceSubscription {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  productType: 'Sante' | 'Auto' | 'Prevoyance' | 'Famille';
+  productName: string;
+  monthlyPremium: number;
+  status: 'Actif' | 'Résilié';
+  startDate: string;
+}
+
+export interface ExpenseClaim {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  type: 'Transport' | 'Hébergement' | 'Restauration' | 'Santé' | 'Autre';
+  description: string;
+  amount: number;
+  date: string;
+  status: 'En attente' | 'Approuvé' | 'Refusé' | 'Remboursé';
+  receiptUrl?: string;
+}
+
+export interface ProvisionConfig {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  monthlyLeaveProvision: number; // monthly accrued leave value
+  fringeRetirementIndemnity: number; // end of career retirement provision
+  accruedAmount: number;
+}
+
+export interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  position: string;
+  department: string;
+  status: 'Reçu' | 'Entretien' | 'Accepté' | 'Rejeté' | 'Onboarding';
+  resumeUrl?: string;
+  applyDate: string;
+  notes?: string;
+}
+
+export interface OnboardingTask {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  taskName: string;
+  status: 'À faire' | 'En cours' | 'Terminé';
+  dueDate: string;
+  assignedTo: string;
+}
+
+export interface PerformanceReview {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  reviewerName: string;
+  reviewDate: string;
+  score: number; // 1-5 stars
+  strengths: string;
+  weakPoints: string;
+  developmentPlan: string;
+  status: 'En cours' | 'Complété';
+}
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  date: string;
+  clockIn?: string;
+  clockOut?: string;
+  totalHours: number;
+  overtimeHours: number;
+  delayMinutes: number;
+  isAbsent: boolean;
+  absentReason?: string;
+  workMode: 'Présentiel' | 'Télétravail' | 'Hybride';
+}
+
+export interface EmployeeDocument {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  title: string;
+  category: 'Contrat' | 'Fiche de paie' | 'Certificat' | 'Autre';
+  uploadDate: string;
+  fileUrl?: string;
+  fileSize: string;
+  eSignatureStatus: 'Non requis' | 'En attente' | 'Signé';
+  signedDate?: string;
+  ipAddress?: string;
+}
+
+export interface CareerHistoryItem {
+  id: string;
+  employeeId: string;
+  position: string;
+  department: string;
+  baseSalary: number;
+  startDate: string;
+  endDate?: string;
+  changeReason: string; // e.g. "Embauche", "Promotion", "Augmentation"
+}
+
+export interface WalletTransaction {
+  id: string;
+  employeeId: string;
+  amount: number;
+  date: string;
+  type: 'Dépôt' | 'Retrait' | 'Prélèvement' | 'Versement Salaire' | 'Remboursement';
+  description: string;
+}
+
+export interface SavingsTarget {
+  id: string;
+  employeeId: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  monthlyContribution: number;
+  startDate: string;
+  status: 'Actif' | 'Atteint';
+}
+
+
+

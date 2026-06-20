@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Briefcase, Lock, Mail, ArrowRight, ShieldCheck, Globe } from 'lucide-react';
 
 interface LoginViewProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (email: string) => void;
 }
 
 export default function LoginView({ onLoginSuccess }: LoginViewProps) {
@@ -25,9 +25,20 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
     // Simulate natural premium delay
     setTimeout(() => {
       setLoading(false);
-      onLoginSuccess();
+      onLoginSuccess(email);
     }, 900);
   };
+
+  const handleQuickLogin = (selectedEmail: string) => {
+    setEmail(selectedEmail);
+    setPassword('demo1234');
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onLoginSuccess(selectedEmail);
+    }, 700);
+  };
+
 
   return (
     <div id="login_container" className="min-h-screen bg-slate-50 flex flex-col justify-between font-sans antialiased">
@@ -54,7 +65,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               Jefara
             </h1>
             <p className="text-sm font-medium text-slate-500 mt-1 max-w-xs mx-auto">
-              Payroll infrastructure for francophone Africa
+              Payroll infrastructure for Africa
             </p>
           </div>
 
@@ -129,13 +140,37 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             </button>
           </form>
 
+          {/* Quick-Access Role Swapper Badges */}
+          <div className="mt-6 pt-5 border-t border-slate-100 space-y-2.5">
+            <span className="block text-[10px] font-black uppercase text-slate-400 tracking-wider text-center">Accès démo rapide double interface</span>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('admin@jefara.com')}
+                className="py-2 px-3 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 rounded-xl text-[10.5px] font-extrabold transition text-center cursor-pointer border border-indigo-100 flex flex-col items-center justify-center gap-0.5"
+              >
+                <span>Espace Employeur</span>
+                <span className="text-[8.5px] font-medium text-indigo-500 font-sans">(Responsable RH)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('jean.dupont@jefara.com')}
+                className="py-2 px-3 bg-purple-50 hover:bg-purple-100/80 text-purple-700 rounded-xl text-[10.5px] font-extrabold transition text-center cursor-pointer border border-purple-100 flex flex-col items-center justify-center gap-0.5"
+              >
+                <span>Portail Personnel</span>
+                <span className="text-[8.5px] font-medium text-purple-500 font-sans">(Employé Dupont)</span>
+              </button>
+            </div>
+          </div>
+
+
           {/* Client Target Segment Info Badge */}
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-start gap-3 bg-indigo-50/50 p-4 rounded-xl">
             <ShieldCheck className="text-indigo-600 shrink-0 mt-0.5" size={18} />
             <div>
               <h4 className="text-xs font-bold text-slate-800">Accès Démo Sécurisé</h4>
               <p className="text-[11px] text-slate-500 leading-relaxed mt-0.5">
-                Destiné aux PME de 10 à 200 employés au Cameroun, en Côte d’Ivoire, au Sénégal, et autres pays francophones d'Afrique.
+                Destiné aux PME de 10 à 200 employés au Cameroun, en Côte d’Ivoire, au Sénégal, et autres pays d'Afrique.
               </p>
             </div>
           </div>

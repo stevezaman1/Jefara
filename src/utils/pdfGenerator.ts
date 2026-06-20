@@ -144,6 +144,34 @@ export function generatePayslipPDF(
     }
   ];
 
+  // Dynamically push integrated financial deductions
+  if (item.wageAdvanceDeduction && item.wageAdvanceDeduction > 0) {
+    rows.push({
+      label: 'Avance sur salaire (Acompte EWA Jefara)',
+      employeeVal: `(${formatCurrency(item.wageAdvanceDeduction, currency)})`,
+      employerVal: '-',
+      isBold: true,
+    });
+  }
+
+  if (item.creditDeduction && item.creditDeduction > 0) {
+    rows.push({
+      label: 'Mensualité de Crédit (Crédit Salarié Jefara)',
+      employeeVal: `(${formatCurrency(item.creditDeduction, currency)})`,
+      employerVal: '-',
+      isBold: true,
+    });
+  }
+
+  if (item.insuranceDeduction && item.insuranceDeduction > 0) {
+    rows.push({
+      label: 'Cotisation Assurance Intégrée (Jefara Assur)',
+      employeeVal: `(${formatCurrency(item.insuranceDeduction, currency)})`,
+      employerVal: '-',
+      isBold: true,
+    });
+  }
+
   let currentY = tableY + 14;
   rows.forEach((row, i) => {
     // Alternating background for legibility
@@ -184,13 +212,18 @@ export function generatePayslipPDF(
   doc.rect(summaryX, currentY, 80, 32, 'F');
   doc.rect(summaryX, currentY, 80, 32, 'D');
 
+  const totalRetenues = detail.totalDeductions + 
+    (item.wageAdvanceDeduction || 0) + 
+    (item.creditDeduction || 0) + 
+    (item.insuranceDeduction || 0);
+
   doc.setFont('Helvetica', 'normal');
   doc.setFontSize(9);
   doc.text('TOTAL DE BASE BRUT :', summaryX + 4, currentY + 6);
   doc.text(formatCurrency(detail.baseSalary, currency), summaryX + 45, currentY + 6);
 
-  doc.text('TOTAL DES RETENUES :', summaryX + 4, currentY + 13);
-  doc.text(`- ${formatCurrency(detail.totalDeductions, currency)}`, summaryX + 45, currentY + 13);
+  doc.text('TOTAL DE RETENUES :', summaryX + 4, currentY + 13);
+  doc.text(`- ${formatCurrency(totalRetenues, currency)}`, summaryX + 45, currentY + 13);
 
   doc.text('CHARGES PATRONALES :', summaryX + 4, currentY + 20);
   doc.text(formatCurrency(detail.totalEmployerCharges, currency), summaryX + 45, currentY + 20);
@@ -200,8 +233,9 @@ export function generatePayslipPDF(
   doc.rect(summaryX, currentY + 23, 80, 9, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('Helvetica', 'bold');
-  doc.text('NET A PAYER :', summaryX + 4, currentY + 29);
-  doc.text(formatCurrency(detail.netSalary, currency), summaryX + 45, currentY + 29);
+  doc.text('NET NET PAYÉ :', summaryX + 4, currentY + 29);
+  doc.text(formatCurrency(item.netSalary, currency), summaryX + 45, currentY + 29);
+
 
   // Resets
   doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
@@ -223,7 +257,7 @@ export function generatePayslipPDF(
   doc.setFont('Helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.text(
-    `Ce bulletin de salaire de l'employé ${employee.firstName} ${employee.lastName} a été généré via Jefara - L'infrastructure moderne de la paie en Afrique francophone.`,
+    `Ce bulletin de salaire de l'employé ${employee.firstName} ${employee.lastName} a été généré via Jefara - L'infrastructure moderne de la paie en Afrique.`,
     105,
     280,
     { align: 'center' }

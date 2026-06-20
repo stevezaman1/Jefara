@@ -1,7 +1,7 @@
 import { CountryType, PayslipDetail } from '../types';
 
 /**
- * Calcul précis des cotisations et impôts pour l'Afrique francophone en fonction du pays.
+ * Calcul précis des cotisations et impôts pour l'Afrique en fonction du pays.
  */
 export function calculatePayroll(baseSalary: number, country: CountryType): PayslipDetail {
   let pensionContribution = 0; // Salarié CNPS / IPRES

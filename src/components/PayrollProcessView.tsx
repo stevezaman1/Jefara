@@ -4,7 +4,7 @@ import {
   CreditCard, RotateCcw, AlertCircle, Sparkles, CheckCircle2, ChevronRight, 
   Settings, Banknote, ShieldAlert, FileDown, Eye, Check 
 } from 'lucide-react';
-import { Employee, CompanySettings, PayslipHistoryItem, PayrollRun } from '../types';
+import { Employee, CompanySettings, PayslipHistoryItem, PayrollRun, WageAdvance, EmployeeCredit, InsuranceSubscription } from '../types';
 import { calculatePayroll, formatCurrency } from '../utils/calculator';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
 
@@ -13,6 +13,9 @@ interface PayrollProcessViewProps {
   companySettings: CompanySettings;
   onPayrollCompleted: (newRun: PayrollRun, newPayslips: PayslipHistoryItem[]) => void;
   activePayrollHistory: PayslipHistoryItem[];
+  wageAdvances: WageAdvance[];
+  employeeCredits: EmployeeCredit[];
+  insuranceSubscriptions: InsuranceSubscription[];
 }
 
 export default function PayrollProcessView({
@@ -20,6 +23,9 @@ export default function PayrollProcessView({
   companySettings,
   onPayrollCompleted,
   activePayrollHistory,
+  wageAdvances,
+  employeeCredits,
+  insuranceSubscriptions,
 }: PayrollProcessViewProps) {
   const currentMonth = 'Mai 2026';
   const activeStaff = employees.filter(e => e.status === 'Actif');
@@ -34,15 +40,35 @@ export default function PayrollProcessView({
     .filter(e => selectedEmployees.includes(e.id))
     .map(emp => {
       const calc = calculatePayroll(emp.baseSalary, companySettings.country);
+      
+      // Calculate active financial services deductions
+      const approvedAdvance = wageAdvances.find(w => w.employeeId === emp.id && w.status === 'Approuvé');
+      const wageAdvanceDeduction = approvedAdvance ? approvedAdvance.amount : 0;
+      
+      const activeCredits = employeeCredits.filter(c => c.employeeId === emp.id && c.status === 'Actif');
+      const creditDeduction = activeCredits.reduce((sum, c) => sum + c.monthlyInstallment, 0);
+      
+      const activeInsurances = insuranceSubscriptions.filter(s => s.employeeId === emp.id && s.status === 'Actif');
+      const insuranceDeduction = activeInsurances.reduce((sum, s) => sum + s.monthlyPremium, 0);
+
+      const totalFinancialDeductions = wageAdvanceDeduction + creditDeduction + insuranceDeduction;
+      const finalNetSalary = Math.max(0, calc.netSalary - totalFinancialDeductions);
+
       return {
         employee: emp,
         calculations: calc,
+        wageAdvanceDeduction,
+        creditDeduction,
+        insuranceDeduction,
+        finalNetSalary,
       };
     });
 
   const totalGross = computedList.reduce((sum, item) => sum + item.calculations.baseSalary, 0);
-  const totalDeductions = computedList.reduce((sum, item) => sum + item.calculations.totalDeductions, 0);
-  const totalNet = computedList.reduce((sum, item) => sum + item.calculations.netSalary, 0);
+  const totalDeductions = computedList.reduce((sum, item) => {
+    return sum + item.calculations.totalDeductions + item.wageAdvanceDeduction + item.creditDeduction + item.insuranceDeduction;
+  }, 0);
+  const totalNet = computedList.reduce((sum, item) => sum + item.finalNetSalary, 0);
 
   // Trigger Run Simulation
   const handleRunPayroll = () => {
@@ -80,11 +106,15 @@ export default function PayrollProcessView({
               position: item.employee.position,
               month: currentMonth,
               baseSalary: item.employee.baseSalary,
-              deductions: item.calculations.totalDeductions,
-              netSalary: item.calculations.netSalary,
+              deductions: item.calculations.totalDeductions + item.wageAdvanceDeduction + item.creditDeduction + item.insuranceDeduction,
+              netSalary: item.finalNetSalary,
               slipDetail: item.calculations,
               paymentDate: new Date().toISOString().split('T')[0],
               bankAccount: item.employee.bankAccountNumber,
+              paymentMethod: item.employee.paymentMethod,
+              wageAdvanceDeduction: item.wageAdvanceDeduction,
+              creditDeduction: item.creditDeduction,
+              insuranceDeduction: item.insuranceDeduction,
             }));
 
             // Callback to App view state
@@ -164,8 +194,11 @@ export default function PayrollProcessView({
 
             <div className="overflow-y-auto max-h-[420px] divide-y divide-slate-100">
               {activeStaff.map(emp => {
-                const calc = calculatePayroll(emp.baseSalary, companySettings.country);
                 const isSelected = selectedEmployees.includes(emp.id);
+                const computedItem = computedList.find(c => c.employee.id === emp.id);
+                const calc = computedItem ? computedItem.calculations : calculatePayroll(emp.baseSalary, companySettings.country);
+                
+                const hasDeductions = computedItem && (computedItem.wageAdvanceDeduction > 0 || computedItem.creditDeduction > 0 || computedItem.insuranceDeduction > 0);
 
                 return (
                   <div 
@@ -187,8 +220,36 @@ export default function PayrollProcessView({
                       </div>
 
                       <div>
-                        <p className="font-bold text-slate-800 text-xs">{emp.firstName} {emp.lastName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-slate-800 text-xs">{emp.firstName} {emp.lastName}</p>
+                          {hasDeductions && (
+                            <span className="text-[9px] font-black bg-purple-50 text-purple-700 py-0.5 px-2 rounded-full">
+                              Services financiers
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[10px] text-slate-400 font-medium">{emp.position}</p>
+                        
+                        {/* Deductions visual badges */}
+                        {computedItem && isSelected && (
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {computedItem.wageAdvanceDeduction > 0 && (
+                              <span className="text-[9px] text-indigo-750 bg-indigo-50 px-1.5 py-0.5 rounded-sm font-medium">
+                                Acompte : -{formatCurrency(computedItem.wageAdvanceDeduction, companySettings.currency)}
+                              </span>
+                            )}
+                            {computedItem.creditDeduction > 0 && (
+                              <span className="text-[9px] text-orange-750 bg-orange-50 px-1.5 py-0.5 rounded-sm font-medium">
+                                Prêt : -{formatCurrency(computedItem.creditDeduction, companySettings.currency)}
+                              </span>
+                            )}
+                            {computedItem.insuranceDeduction > 0 && (
+                              <span className="text-[9px] text-purple-750 bg-purple-50 px-1.5 py-0.5 rounded-sm font-medium">
+                                Assur : -{formatCurrency(computedItem.insuranceDeduction, companySettings.currency)}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -202,8 +263,8 @@ export default function PayrollProcessView({
                       
                       <div className="text-right">
                         <span className="text-[9px] text-emerald-600 uppercase font-extrabold block">Salaire Net</span>
-                        <span className="font-mono text-xs font-bold text-emerald-600">
-                          {formatCurrency(calc.netSalary, companySettings.currency)}
+                        <span className="font-mono text-xs font-black text-emerald-600">
+                          {formatCurrency(computedItem ? computedItem.finalNetSalary : calc.netSalary, companySettings.currency)}
                         </span>
                       </div>
                     </div>
@@ -226,7 +287,7 @@ export default function PayrollProcessView({
                 <p><strong>Pays d'application :</strong> {companySettings.country}</p>
                 <p><strong>Règlementations :</strong> CNPS / Retraite de base, Contribution Solidarité, IRPP progressif.</p>
                 <p className="text-[10px] text-indigo-700 leading-relaxed font-medium pt-1">
-                  Les formules analytiques se basent sur les lois fiscales de la zone francophone pour ajuster les taux de cotisation sociale.
+                  Les formules analytiques se basent sur les lois fiscales de l'Afrique pour ajuster les taux de cotisation sociale.
                 </p>
               </div>
 
