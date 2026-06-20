@@ -3,14 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Building2, Users, CreditCard, Calendar, Mail, Settings, LogOut, 
   Menu, X, CheckSquare, Bell, FileText, ChevronRight, Globe, ShieldAlert,
-  HandCoins, Calculator, Eye, TrendingUp, Briefcase, Clock, Bot
+  HandCoins, Calculator, Eye, TrendingUp
 } from 'lucide-react';
 
 // Models/Types
 import { 
   Employee, PayrollRun, PayslipHistoryItem, LeaveRequest, CompanySettings, 
-  MailNotification, WageAdvance, EmployeeCredit, InsuranceSubscription, ExpenseClaim, ProvisionConfig, ProfileUpdateRequest,
-  Candidate, OnboardingTask, PerformanceReview, AttendanceRecord
+  MailNotification, WageAdvance, EmployeeCredit, InsuranceSubscription, ExpenseClaim, ProvisionConfig, ProfileUpdateRequest 
 } from './types';
 
 // Constants/Initial Data
@@ -18,8 +17,7 @@ import {
   initialCompanySettings, initialEmployees, initialLeaves, 
   initialPayslips, initialPayrollRuns, initialNotifications,
   initialWageAdvances, initialEmployeeCredits, initialInsuranceSubscriptions,
-  initialExpenseClaims, initialProvisions, initialProfileUpdateRequests,
-  initialCandidates, initialOnboardingTasks, initialPerformanceReviews, initialAttendanceRecords
+  initialExpenseClaims, initialProvisions, initialProfileUpdateRequests
 } from './utils/initialData';
 
 // Custom core views
@@ -34,9 +32,6 @@ import FinancialServicesView from './components/FinancialServicesView';
 import AccountingView from './components/AccountingView';
 import EmployeePortalView from './components/EmployeePortalView';
 import AnalyticsView from './components/AnalyticsView';
-import TalentView from './components/TalentView';
-import AttendanceView from './components/AttendanceView';
-import AIAssistant from './components/AIAssistant';
 
 // Calculator formatters
 import { formatCurrency } from './utils/calculator';
@@ -109,31 +104,9 @@ export default function App() {
     return saved ? JSON.parse(saved) : initialProfileUpdateRequests;
   });
 
-  const [candidates, setCandidates] = useState<Candidate[]>(() => {
-    const saved = localStorage.getItem('jefara_candidates');
-    return saved ? JSON.parse(saved) : initialCandidates;
-  });
-
-  const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>(() => {
-    const saved = localStorage.getItem('jefara_onboarding_tasks');
-    return saved ? JSON.parse(saved) : initialOnboardingTasks;
-  });
-
-  const [performanceReviews, setPerformanceReviews] = useState<PerformanceReview[]>(() => {
-    const saved = localStorage.getItem('jefara_performance_reviews');
-    return saved ? JSON.parse(saved) : initialPerformanceReviews;
-  });
-
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => {
-    const saved = localStorage.getItem('jefara_attendance_records');
-    return saved ? JSON.parse(saved) : initialAttendanceRecords;
-  });
-
   const [activePortal, setActivePortal] = useState<'employer' | 'employee'>(() => {
     return (localStorage.getItem('jefara_active_portal') as 'employer' | 'employee') || 'employer';
   });
-
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>(() => {
     return localStorage.getItem('jefara_selected_employee_id') || 'emp-01';
@@ -185,22 +158,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('jefara_insurance_subscriptions', JSON.stringify(insuranceSubscriptions));
   }, [insuranceSubscriptions]);
-
-  useEffect(() => {
-    localStorage.setItem('jefara_candidates', JSON.stringify(candidates));
-  }, [candidates]);
-
-  useEffect(() => {
-    localStorage.setItem('jefara_onboarding_tasks', JSON.stringify(onboardingTasks));
-  }, [onboardingTasks]);
-
-  useEffect(() => {
-    localStorage.setItem('jefara_performance_reviews', JSON.stringify(performanceReviews));
-  }, [performanceReviews]);
-
-  useEffect(() => {
-    localStorage.setItem('jefara_attendance_records', JSON.stringify(attendanceRecords));
-  }, [attendanceRecords]);
 
   useEffect(() => {
     localStorage.setItem('jefara_expense_claims', JSON.stringify(expenseClaims));
@@ -618,22 +575,6 @@ export default function App() {
             </button>
 
             <button
-              id="tab_talents"
-              onClick={() => { setCurrentTab('talents'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
-                currentTab === 'talents' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Briefcase size={18} />
-                <span>Recrutement & Talents</span>
-              </div>
-              <span className="text-[10px] bg-indigo-500 text-white font-bold py-0.5 px-2 rounded-full font-sans">
-                {candidates.filter(c => c.status !== 'Onboarding').length}
-              </span>
-            </button>
-
-            <button
               id="tab_payroll"
               onClick={() => { setCurrentTab('payroll'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
@@ -668,20 +609,6 @@ export default function App() {
             </button>
 
             <button
-              id="tab_attendance"
-              onClick={() => { setCurrentTab('attendance'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
-                currentTab === 'attendance' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Clock size={18} />
-                <span>Présences & Temps</span>
-              </div>
-              <ChevronRight size={14} className={currentTab === 'attendance' ? 'text-indigo-450' : 'opacity-0'} />
-            </button>
-
-            <button
               id="tab_accounting"
               onClick={() => { setCurrentTab('accounting'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
@@ -707,20 +634,6 @@ export default function App() {
                 <span>Analyses Avancées</span>
               </div>
               <ChevronRight size={14} className={currentTab === 'analytics' ? 'text-indigo-455' : 'opacity-0'} />
-            </button>
-
-            <button
-              id="tab_ai"
-              onClick={() => { setCurrentTab('ai'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${
-                currentTab === 'ai' ? 'bg-indigo-600/10 text-indigo-400 font-bold border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800/45/80 text-teal-400 font-bold hover:text-white border border-teal-500/10'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Bot size={18} className="text-indigo-400 animate-pulse" />
-                <span className="text-slate-200">Assistant IA Jefara</span>
-              </div>
-              <span className="bg-indigo-500 text-white text-[8px] font-black py-0.5 px-1.5 rounded-sm">INTELLIGENT</span>
             </button>
 
             <button
@@ -958,39 +871,6 @@ export default function App() {
                 />
               )}
 
-              {currentTab === 'talents' && (
-                <TalentView
-                  employees={employees}
-                  companySettings={companySettings}
-                  onAddEmployee={handleAddEmployee}
-                  initialCandidatesList={candidates}
-                  initialOnboardingTaskList={onboardingTasks}
-                  initialPerformanceReviewList={performanceReviews}
-                />
-              )}
-
-              {currentTab === 'attendance' && (
-                <AttendanceView
-                  employees={employees}
-                  companySettings={companySettings}
-                  initialAttendanceList={attendanceRecords}
-                />
-              )}
-
-              {currentTab === 'ai' && (
-                <AIAssistant
-                  companySettings={companySettings}
-                  employees={employees}
-                  payrollRuns={payrollRuns}
-                  payslips={payslips}
-                  leaves={leaves}
-                  expenseClaims={expenseClaims}
-                  attendanceRecords={attendanceRecords}
-                  candidates={candidates}
-                  isFloating={false}
-                />
-              )}
-
               {currentTab === 'leaves' && (
                 <LeavesView
                   employees={employees}
@@ -1020,47 +900,13 @@ export default function App() {
 
         {/* Global layout footer details */}
         <footer className="bg-white border-t border-slate-100 p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center text-xs text-slate-400">
-          <p>© 2026 Jefara Inc. L'infrastructure de la paie en Afrique.</p>
+          <p>© 2026 Jefara Inc. L'infrastructure de la paie en Afrique francophone.</p>
           <div className="flex gap-4">
             <span className="hover:underline cursor-pointer">Conditions Générales</span>
             <span className="hover:underline cursor-pointer">Sécurité & Conformité CEMAC/UEMOA</span>
           </div>
         </footer>
       </main>
-
-      {/* Floating AI Chat Bubble Trigger */}
-      {currentTab !== 'ai' && (
-        <div className="fixed bottom-5 right-5 z-40 select-none">
-          {isChatOpen ? (
-            <AIAssistant
-              companySettings={companySettings}
-              employees={employees}
-              payrollRuns={payrollRuns}
-              payslips={payslips}
-              leaves={leaves}
-              expenseClaims={expenseClaims}
-              attendanceRecords={attendanceRecords}
-              candidates={candidates}
-              isFloating={true}
-              onClose={() => setIsChatOpen(false)}
-            />
-          ) : (
-            <button
-              onClick={() => setIsChatOpen(true)}
-              className="w-12 h-12 bg-indigo-650 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:scale-105 transition-all group relative hover:rotate-6"
-              style={{ transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
-              title="Discuter avec l'assistant Jefara AI"
-              id="btn_floating_ai_assistant"
-            >
-              <Bot size={22} className="group-hover:animate-pulse" />
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-550 border border-white" />
-              </span>
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

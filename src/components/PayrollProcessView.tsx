@@ -287,7 +287,7 @@ export default function PayrollProcessView({
                 <p><strong>Pays d'application :</strong> {companySettings.country}</p>
                 <p><strong>Règlementations :</strong> CNPS / Retraite de base, Contribution Solidarité, IRPP progressif.</p>
                 <p className="text-[10px] text-indigo-700 leading-relaxed font-medium pt-1">
-                  Les formules analytiques se basent sur les lois fiscales de l'Afrique pour ajuster les taux de cotisation sociale.
+                  Les formules analytiques se basent sur les lois fiscales de la zone francophone pour ajuster les taux de cotisation sociale.
                 </p>
               </div>
 

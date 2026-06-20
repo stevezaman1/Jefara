@@ -4,7 +4,7 @@ import {
   User, ShieldCheck, HeartPulse, HelpCircle, Calendar, CreditCard, Clock, 
   FileDown, Plus, CheckCircle2, TrendingUp, HandCoins, LogOut, ArrowRight, 
   Activity, Briefcase, FileText, ChevronRight, AlertCircle, ShieldPlus, 
-  Receipt, PlaneTakeoff, Inbox, Building2, FolderLock, Fingerprint, Users2, QrCode, Bot
+  Receipt, PlaneTakeoff, Inbox, Building2
 } from 'lucide-react';
 import { Employee, CompanySettings, PayslipHistoryItem, LeaveRequest, WageAdvance, EmployeeCredit, InsuranceSubscription, ExpenseClaim, ProfileUpdateRequest } from '../types';
 import { calculatePayroll, formatCurrency } from '../utils/calculator';
@@ -53,30 +53,8 @@ export default function EmployeePortalView({
   onAddProfileUpdateRequest
 }: EmployeePortalViewProps) {
   
-  // Side tabs: 'home' | 'payslips' | 'leaves' | 'fintech' | 'expenses' | 'profile' | 'directory' | 'vault' | 'history' | 'badge' | 'ai'
-  const [activeMenu, setActiveMenu] = useState<'home' | 'payslips' | 'leaves' | 'fintech' | 'expenses' | 'profile' | 'directory' | 'vault' | 'history' | 'badge' | 'ai'>('home');
-
-  // Vault mock states
-  const [employeeDocs, setEmployeeDocs] = useState<Array<{ id: string; title: string; category: string; date: string; status: 'Signé'|'En attente'; content: string }>>([
-    { id: 'doc-1', title: 'Contrat de Travail Initial CDI', category: 'Contrat de Travail', date: '2026-01-10', status: 'Signé', content: 'Contrat à durée indéterminée rédigé conformément au barème de la convention collective d\'Afrique.' },
-    { id: 'doc-2', title: 'Avenant Hybride Partiel de Télétravail', category: 'Avenant', date: '2026-05-15', status: 'Signé', content: 'Avenant de travail réglementant deux jours de télétravail par semaine.' },
-    { id: 'doc-3', title: 'Attestation de Soldes Mutuelle de Prêt', category: 'Attestation', date: '2026-06-12', status: 'En attente', content: 'Ce document certifie le remboursement de l\'avance de fonds octroyé par Jefara Mutuelle.' },
-  ]);
-
-  // Career timeline mock states
-  const [careerHistory] = useState<Array<{ date: string; position: string; department: string; event: string; status: string }>>([
-    { date: '2026-01-10', position: currentUser.position, department: currentUser.department, event: 'Embauche initiale sous convention Jefara', status: 'Officiel' },
-    { date: '2026-04-10', position: currentUser.position, department: currentUser.department, event: 'Validation de la période d\'essai par Marie Koffi', status: 'Confirmé' },
-    { date: '2026-06-01', position: currentUser.position, department: currentUser.department, event: 'Activation de la carte d\'employé numérique', status: 'Actif' }
-  ]);
-
-  const [directorySearch, setDirectorySearch] = useState('');
-  const directoryColleagues = [
-    { name: 'Jean Dupont', position: 'Directeur Technique', dept: 'Technologie', email: 'jean.dupont@test-corp.com', phone: '+237 677 889 900', status: 'Présentiel', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=150' },
-    { name: 'Koffi Serge', position: 'Financial Controller', dept: 'Finance', email: 'serge.koffi@test-corp.com', phone: '+225 07 45 88 99', status: 'Télétravail', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150' },
-    { name: 'Marie Koffi', position: 'DRH & Talent Admin', dept: 'Ressources Humaines', email: 'marie.koffi@test-corp.com', phone: '+225 05 11 22 33', status: 'Présentiel', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150' },
-    { name: 'Abdoulaye Diop', position: 'Développeur Fullstack', dept: 'Technologie', email: 'abdoulaye.diop@test-corp.com', phone: '+221 77 650 33 22', status: 'Hybride', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150' }
-  ];
+  // Side tabs: 'home' | 'payslips' | 'leaves' | 'fintech' | 'expenses' | 'profile'
+  const [activeMenu, setActiveMenu] = useState<'home' | 'payslips' | 'leaves' | 'fintech' | 'expenses' | 'profile'>('home');
   
   // New Leave Form states
   const [isRequestingLeave, setIsRequestingLeave] = useState(false);
@@ -434,7 +412,7 @@ export default function EmployeePortalView({
             <button
               onClick={() => setActiveMenu('expenses')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all ${
-                activeMenu === 'expenses' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white'
+                activeMenu === 'expenses' ? 'bg-indigo-600 text-white font-black' : 'text-slate-400 hover:text-white'
               }`}
             >
               <Receipt size={15} />
@@ -445,67 +423,12 @@ export default function EmployeePortalView({
               id="tab_portal_profile"
               onClick={() => setActiveMenu('profile')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all ${
-                activeMenu === 'profile' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white'
+                activeMenu === 'profile' ? 'bg-indigo-600 text-white font-black' : 'text-slate-400 hover:text-white'
               }`}
             >
               <UserCog size={15} />
               <span>Mon Profil & RIB</span>
             </button>
-
-            <div className="pt-2 border-t border-slate-850 my-2">
-              <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase px-4 block mb-2">Services Numériques</span>
-              
-              <button
-                onClick={() => setActiveMenu('directory')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all ${
-                  activeMenu === 'directory' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Users2 size={15} />
-                <span>Annuaire Collaborateurs</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMenu('vault')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all relative ${
-                  activeMenu === 'vault' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <FolderLock size={15} />
-                <span>Coffre-fort & Signature</span>
-                <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-              </button>
-
-              <button
-                onClick={() => setActiveMenu('history')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all ${
-                  activeMenu === 'history' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Fingerprint size={15} />
-                <span>Historique de Carrière</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMenu('badge')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all ${
-                  activeMenu === 'badge' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <QrCode size={15} />
-                <span>Carte Employé Digitale</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMenu('ai')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-800/40 transition-all text-emerald-400 border border-emerald-950/20 ${
-                  activeMenu === 'ai' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-white hover:bg-emerald-950/15'
-                }`}
-              >
-                <Bot size={15} className="text-emerald-400 animate-pulse" />
-                <span>Jefara Conseil AI</span>
-              </button>
-            </div>
           </nav>
         </div>
 

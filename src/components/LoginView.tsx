@@ -65,7 +65,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               Jefara
             </h1>
             <p className="text-sm font-medium text-slate-500 mt-1 max-w-xs mx-auto">
-              Payroll infrastructure for Africa
+              Payroll infrastructure for francophone Africa
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             <div>
               <h4 className="text-xs font-bold text-slate-800">Accès Démo Sécurisé</h4>
               <p className="text-[11px] text-slate-500 leading-relaxed mt-0.5">
-                Destiné aux PME de 10 à 200 employés au Cameroun, en Côte d’Ivoire, au Sénégal, et autres pays d'Afrique.
+                Destiné aux PME de 10 à 200 employés au Cameroun, en Côte d’Ivoire, au Sénégal, et autres pays francophones d'Afrique.
               </p>
             </div>
           </div>

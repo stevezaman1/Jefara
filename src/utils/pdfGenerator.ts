@@ -257,7 +257,7 @@ export function generatePayslipPDF(
   doc.setFont('Helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.text(
-    `Ce bulletin de salaire de l'employé ${employee.firstName} ${employee.lastName} a été généré via Jefara - L'infrastructure moderne de la paie en Afrique.`,
+    `Ce bulletin de salaire de l'employé ${employee.firstName} ${employee.lastName} a été généré via Jefara - L'infrastructure moderne de la paie en Afrique francophone.`,
     105,
     280,
     { align: 'center' }
